@@ -14,7 +14,8 @@ $computerNameArgument = $computerName + '/MsDeploy.axd?site=' + $recycleApp
 
 $directory = Split-Path -Path (Get-Location) -Parent
 $baseName = (Get-Item $directory).BaseName
-$contentPath = Join-Path(Join-Path $directory $baseName) $source
+# Directly use $source as the content path
+$contentPath = $source
 
 $targetPath = $recycleApp + $destination
 
