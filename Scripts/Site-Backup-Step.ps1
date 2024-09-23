@@ -26,11 +26,14 @@ $msdeployArgumentsCopy =
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
 
+# Define session options to skip certificate checks
+$sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+
 # Execute the PowerShell script on the target machine
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credential = New-Object PSCredential($username, $securePassword)
 
-Invoke-Command -ConnectionUri $computerNameArgument -Credential $credential -ScriptBlock {
+Invoke-Command -ConnectionUri $computerNameArgument -Credential $credential -SessionOption $sessionOptions -ScriptBlock {
     param($remoteScriptPath, $websiteName, $skipPaths)
     & $remoteScriptPath -websiteName $websiteName -skipPaths $skipPaths
 } -ArgumentList $remoteScriptPath, $websiteName, $skipPaths
