@@ -21,26 +21,9 @@ $msdeployArgumentsCopy =
         "username=${username}," +
         "password=${password}," +
         "AuthType='Basic'"
-    )
+    ) +
+    "-postSync:runcommand=powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths '${escapedSkipPaths}'"
 
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
-
-
-# Prepare the skipPaths argument (escape commas if needed)
-$escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
-
-$msdeployArgumentsRun = 
-    "-verb:sync",
-    "-allowUntrusted",
-    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths '${escapedSkipPaths}'",  # Command to execute the script
-    ("-dest:auto," + 
-        "computerName=${computerNameArgument}," + 
-        "username=${username}," +
-        "password=${password}," +
-        "AuthType='Basic'"
-    )
-
-# Call msdeploy to run the script
-& $msdeploy @msdeployArgumentsRun
 
