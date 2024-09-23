@@ -33,8 +33,7 @@ $escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand=" +
-        "powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $escapedSkipPaths",  # Command to execute the script
+    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $escapedSkipPaths",  # Command to execute the script
     ("-dest:auto," + 
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
