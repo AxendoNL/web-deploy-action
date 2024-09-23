@@ -26,12 +26,15 @@ $msdeployArgumentsCopy =
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
 
-# Execute the PowerShell script on the remote machine using msdeploy
+
+# Prepare the skipPaths argument (escape commas if needed)
+$escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
+
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
     "-source:runCommand=" +
-        "'powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $($skipPaths -join ',')'",  # Command to execute the script
+        "powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $escapedSkipPaths",  # Command to execute the script
     ("-dest:auto," + 
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
