@@ -8,15 +8,15 @@ $localScriptPath = $args[4] # Local path of the script
 $remoteScriptPath = "C:\DeploymentScripts\Site-Backup.ps1"  # Path where you want to copy the script on the remote machine
 $skipPaths = $args[5] -split ','  # Get the skipPaths from args and split by comma
 
-$computerNameArgument = $computerName + '/MsDeploy.axd'
+$computerNameArgument = $computerName + '/MsDeploy.axd?site=' + $websiteName
 
 # Copy the PowerShell script to the remote machine
 $msdeployArgumentsCopy = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:content=${localScriptPath}",  # Local script to copy
+    "-source:contentPath=${localScriptPath}",  # Local script to copy
     ("-dest:" + 
-        "content=${remoteScriptPath}," +
+        "contentPath=${remoteScriptPath}," +
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
         "password=${password}," +
