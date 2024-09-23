@@ -10,11 +10,7 @@ $skipPaths = $args[5] -split ','  # Get the skipPaths from args and split by com
 
 $computerNameArgument = $computerName + '/MsDeploy.axd?site=' + $websiteName
 
-# Copy the PowerShell script to the remote machine
-### ("-postSync:"+
-###     "runCommand='powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths ${($skipPaths -join ',')}'"
-### )
-    
+# Copy the PowerShell script to the remote machine    
 $msdeployArgumentsCopy = 
     "-verb:sync",
     "-allowUntrusted",
@@ -25,9 +21,6 @@ $msdeployArgumentsCopy =
         "username=${username}," +
         "password=${password}," +
         "AuthType='Basic'"
-    )
-    ("-postSync:"+
-        "runCommand='powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths (wwwroot/media)'"
     )
 
 # Call msdeploy to copy the script
@@ -40,7 +33,7 @@ $escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths ${escapedSkipPaths}",  # Command to execute the script
+    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File C:\DeploymentScripts\Site-Backup.ps1 -websiteName acceptatie.digia.vsbfonds.nl -skipPaths ('wwwroot/media')",  # Command to execute the script
     ("-dest:auto," + 
         "computerName=${computerNameArgument}," + 
         "username=${username}," +

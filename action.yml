@@ -32,7 +32,7 @@ inputs:
   skip-backup-paths:
     description: "Target folders or files to exclude from site backup, comma seperated string"
     required: false
-    default: '"wwwroot/media,umbraco/logs,appsettings.development.json"'
+    default: 'wwwroot\media,umbraco\logs,appsettings.development.json'
 runs:
   using: "composite"
   steps:
