@@ -1,6 +1,6 @@
 ﻿param(
     [Parameter(Mandatory=$true)][string]$websiteName,
-    [Parameter(Mandatory=$true)][string[]]$skipPaths # Can contain both files and folders to exclude
+    [string[]]$skipPaths # Can contain both files and folders to exclude
 )
 # EXAMPLE: backup.ps1 -websiteName "YourWebsite" -skipPaths @("wwwroot/media", "umbraco/logs", "appsettings.development.json")
 
