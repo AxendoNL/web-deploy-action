@@ -27,7 +27,7 @@ $msdeployArgumentsCopy =
         "AuthType='Basic'"
     )
     ("-postSync:"+
-        "runCommand='powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths ${($skipPaths -join ',')}'"
+        "runCommand='powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths (wwwroot/media)'"
     )
 
 # Call msdeploy to copy the script
