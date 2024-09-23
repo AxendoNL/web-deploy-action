@@ -21,11 +21,13 @@ $msdeployArgumentsCopy =
         "username=${username}," +
         "password=${password}," +
         "AuthType='Basic'"
+        ",-postSync:'" + 
+        "powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths $($skipPaths -join ',')" + 
+        "'"
     )
 
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
-
 
 # Define session options to skip certificate checks
 $sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
@@ -34,9 +36,11 @@ $sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationC
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credential = New-Object PSCredential($username, $securePassword)
 
-# Execute the PowerShell script on the target machine
-Invoke-Command -ConnectionUri $computerNameArgument -Credential $credential -SessionOption $sessionOptions -ScriptBlock {
-    param($remoteScriptPath, $websiteName, $skipPaths)
-    & powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $skipPaths
-} -ArgumentList $remoteScriptPath, $websiteName, $skipPaths
+# Execute the PowerShell script on the target machine using WinRM
+$remoteCommand = "powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $($skipPaths -join ',')"
+
+Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
+    param($command)
+    Invoke-Expression $command
+} -ArgumentList $remoteCommand
 
