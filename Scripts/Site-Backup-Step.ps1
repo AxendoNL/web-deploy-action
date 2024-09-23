@@ -35,7 +35,7 @@ $msdeployArgumentsRun =
     "-allowUntrusted",
     "-source:runCommand=Init-Backup.cmd 'C:\DeploymentScripts\Site-Backup.ps1' 'acceptatie.digia.vsbfonds.nl' 'wwwroot/media'",  # Command to execute the script
     ("-dest:" + 
-        "contentPath=${remoteScriptPath},"
+        "contentPath=${remoteScriptPath}," +
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
         "password=${password}," +
