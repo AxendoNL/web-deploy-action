@@ -29,6 +29,10 @@ inputs:
     description: "Target a directory that any actions will be skipped on"
     required: false
     default: '""'
+  skip-backup-paths:
+    description: "Target folders or files to exclude from site backup, comma seperated string"
+    required: false
+    default: '"wwwroot/media,umbraco/logs,appsettings.development.json"'
 runs:
   using: "composite"
   steps:
@@ -41,6 +45,16 @@ runs:
         ${{ inputs.server-computer-name }}
         ${{ inputs.server-username }}
         ${{ inputs.server-password }}
+    - name: Backup Site and Databases
+      shell: pwsh
+      run: >
+        ${{ github.action_path }}/Scripts/Site-Backup-Step.ps1
+        ${{ inputs.server-computer-name }}
+        ${{ inputs.server-username }}
+        ${{ inputs.server-password }}
+        ${{ inputs.website-name }}
+        ${{ github.action_path }}/Scripts/Site-Backup.ps1
+        ${{ inputs.skip-backup-paths }}
     - name: Deploy Application
       shell: pwsh
       run: >
