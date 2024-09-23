@@ -14,12 +14,14 @@ $computerNameArgument = $computerName + '/MsDeploy.axd'
 $msdeployArgumentsCopy = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:content='$localScriptPath'",  # Local script to copy
-    "-dest:content='$remoteScriptPath'," +
-    "computerName=${computerNameArgument}," +
-    "username=${username}," +
-    "password=${password}," +
-    "AuthType='Basic'"
+    "-source:content=${localScriptPath}",  # Local script to copy
+    ("-dest:" + 
+        "content=${remoteScriptPath}," +
+        "computerName=${computerNameArgument}," + 
+        "username=${username}," +
+        "password=${password}," +
+        "AuthType='Basic'"
+    )
 
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
