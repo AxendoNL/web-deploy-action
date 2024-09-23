@@ -21,24 +21,26 @@ $msdeployArgumentsCopy =
         "username=${username}," +
         "password=${password}," +
         "AuthType='Basic'"
-    ),
-    "-postSync:runCommand='powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths wwwroot/media'"
+    )
 
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
 
-# Define session options to skip certificate checks
-$sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
-# Create credentials for remote connection
-$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-$credential = New-Object PSCredential($username, $securePassword)
+# Prepare the skipPaths argument (escape commas if needed)
+$escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 
-# Execute the PowerShell script on the target machine using WinRM
-$remoteCommand = "powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $($skipPaths -join ',')"
+$msdeployArgumentsRun = 
+    "-verb:sync",
+    "-allowUntrusted",
+    "-source:runCommand=Init-Backup.cmd 'C:\DeploymentScripts\Site-Backup.ps1' 'acceptatie.digia.vsbfonds.nl' 'wwwroot/media'"  # Command to execute the script
+    ("-dest:auto," + 
+        "computerName=${computerNameArgument}," + 
+        "username=${username}," +
+        "password=${password}," +
+        "AuthType='Basic'"
+    )
 
-Invoke-Command -ComputerName $computerName -Credential $credential -ScriptBlock {
-    param($command)
-    Invoke-Expression $command
-} -ArgumentList $remoteCommand
+# Call msdeploy to run the script
+& $msdeploy @msdeployArgumentsRun
 
