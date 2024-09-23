@@ -33,7 +33,7 @@ $escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File C:\DeploymentScripts\Site-Backup.ps1 -websiteName acceptatie.digia.vsbfonds.nl -skipPaths ('wwwroot/media')",  # Command to execute the script
+    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File C:\DeploymentScripts\Site-Backup.ps1 -websiteName acceptatie.digia.vsbfonds.nl -skipPaths ('wwwroot/media')"  # Command to execute the script
     ("-dest:auto," + 
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
