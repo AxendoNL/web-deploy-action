@@ -27,20 +27,16 @@ $msdeployArgumentsCopy =
 & $msdeploy @msdeployArgumentsCopy
 
 
-# Prepare the skipPaths argument (escape commas if needed)
-$escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
+# Define session options to skip certificate checks
+$sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
-$msdeployArgumentsRun = 
-    "-verb:sync",
-    "-allowUntrusted",
-    "-source:runCommand=powershell.exe -ExecutionPolicy Bypass -File C:\DeploymentScripts\Site-Backup.ps1 -websiteName acceptatie.digia.vsbfonds.nl -skipPaths ('wwwroot/media')"  # Command to execute the script
-    ("-dest:auto," + 
-        "computerName=${computerNameArgument}," + 
-        "username=${username}," +
-        "password=${password}," +
-        "AuthType='Basic'"
-    )
+# Create credentials for remote connection
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credential = New-Object PSCredential($username, $securePassword)
 
-# Call msdeploy to run the script
-& $msdeploy @msdeployArgumentsRun
+# Execute the PowerShell script on the target machine
+Invoke-Command -ConnectionUri $computerNameArgument -Credential $credential -SessionOption $sessionOptions -ScriptBlock {
+    param($remoteScriptPath, $websiteName, $skipPaths)
+    & powershell.exe -ExecutionPolicy Bypass -File $remoteScriptPath -websiteName $websiteName -skipPaths $skipPaths
+} -ArgumentList $remoteScriptPath, $websiteName, $skipPaths
 
