@@ -22,7 +22,7 @@ $msdeployArgumentsCopy =
         "password=${password}," +
         "AuthType='Basic'"
     ),
-    "-postSync:'powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths $(\"wwwroot/media\")'"
+    "-postSync:'powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath} -websiteName ${websiteName} -skipPaths wwwroot/media'"
 
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
