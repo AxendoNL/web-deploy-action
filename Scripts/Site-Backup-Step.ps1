@@ -27,7 +27,11 @@ $msdeployArgumentsCopy =
 & $msdeploy @msdeployArgumentsCopy
 
 # Execute the PowerShell script on the target machine
-Invoke-Command -ComputerName $computerName -ScriptBlock {
-    param($scriptPath, $websiteName, $skipPaths)
-    & $scriptPath -websiteName $websiteName -skipPaths $skipPaths
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credential = New-Object PSCredential($username, $securePassword)
+
+Invoke-Command -ConnectionUri $computerNameArgument -Credential $credential -ScriptBlock {
+    param($remoteScriptPath, $websiteName, $skipPaths)
+    & $remoteScriptPath -websiteName $websiteName -skipPaths $skipPaths
 } -ArgumentList $remoteScriptPath, $websiteName, $skipPaths
+
