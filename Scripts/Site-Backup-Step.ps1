@@ -33,7 +33,7 @@ $escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand='Init-Backup.cmd C:\DeploymentScripts\Site-Backup.ps1 acceptatie.digia.vsbfonds.nl wwwroot/media'",  # Command to execute the script
+    "-source:runCommand=cmd /c Init-Backup.cmd C:\DeploymentScripts\Site-Backup.ps1 $websiteName $escapedSkipPaths",  # Command to execute the script
     ("-dest:" + 
         "contentPath=${remoteScriptPath}," +
         "computerName=${computerNameArgument}," + 
@@ -44,4 +44,5 @@ $msdeployArgumentsRun =
 
 # Call msdeploy to run the script
 & $msdeploy @msdeployArgumentsRun
+
 
