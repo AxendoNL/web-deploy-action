@@ -63,7 +63,7 @@ $commandToRun = "${remoteScriptPath}\Init-Backup.cmd"
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand=$commandToRun,waitInterval=30000,waitAttempts=1",  # Pass the command without extra quotes
+    "-source:runCommand=$commandToRun,waitInterval=300000,waitAttempts=1",  # Pass the command without extra quotes
     ("-dest:auto," +
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
