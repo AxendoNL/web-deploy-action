@@ -31,9 +31,9 @@ $msdeployArgumentsCopy =
 $escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 
 # Construct the command to be run on the remote machine
-#$commandToRun = "${remoteScriptPath}\Init-Backup.cmd ${remoteScriptPath}\Site-Backup.ps1 $websiteName $escapedSkipPaths"
+$commandToRun = "${remoteScriptPath}\Init-Backup.cmd ${remoteScriptPath}\Site-Backup.ps1 $websiteName $escapedSkipPaths"
 #$commandToRun = "powershell.exe -ExecutionPolicy Bypass -File ${remoteScriptPath}\Site-Backup.ps1 $websiteName $escapedSkipPaths"
-$commandToRun = "powershell.exe ${remoteScriptPath}\Site-Backup.ps1"
+#$commandToRun = "powershell.exe ${remoteScriptPath}\Site-Backup.ps1"
 
 $msdeployArgumentsRun = 
     "-verb:sync",
