@@ -116,7 +116,7 @@ function Backup-SQLDatabases {
             $databaseName = $matches[1]
 
             # Extract the server/instance name from the connection string
-            $serverName = $connStr.Value -replace '\\\\', '\' -replace 'Data Source=([^;]+);.*', '$1' -replace 'Server=([^;]+);.*', '$1'
+            $serverName = $connStr.Value -replace 'Data Source=([^;]+);.*', '$1' -replace 'Server=([^;]+);.*', '$1'
 
             # Prepare the backup file path
             $backupFile = Join-Path $tempDbBackupFolder "$databaseName.bak"
