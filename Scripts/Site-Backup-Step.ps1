@@ -63,7 +63,7 @@ $commandToRun = "${remoteScriptPath}\Init-Backup.cmd"
 $msdeployArgumentsRun = 
     "-verb:sync",
     "-allowUntrusted",
-    "-source:runCommand=$commandToRun",  # Pass the command without extra quotes
+    "-source:runCommand=$commandToRun,waitInterval=30000,waitAttempts=0",  # Pass the command without extra quotes
     ("-dest:auto," +
         "computerName=${computerNameArgument}," + 
         "username=${username}," +
@@ -72,17 +72,6 @@ $msdeployArgumentsRun =
     )
 
 # Call msdeploy to run the script
-#& $msdeploy @msdeployArgumentsRun
-# Start the msdeploy process with a timeout
-$process = Start-Process -FilePath $msdeploy -ArgumentList $msdeployArgumentsRun -NoNewWindow -PassThru
-
-# Wait for the process to exit or timeout after 300 seconds (5 minutes)
-$process.WaitForExit(300000)  # Timeout in milliseconds
-
-# Check if the process is still running and terminate if it is
-if (!$process.HasExited) {
-    Stop-Process -Id $process.Id
-    Write-Host "Process timed out and was terminated."
-}
+& $msdeploy @msdeployArgumentsRun
 
 
