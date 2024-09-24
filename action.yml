@@ -53,7 +53,7 @@ runs:
         ${{ inputs.server-username }}
         ${{ inputs.server-password }}
         ${{ inputs.website-name }}
-        ${{ github.action_path }}/Scripts/Site-Backup.ps1
+        ${{ github.action_path }}/Scripts/transfer
         ${{ inputs.skip-backup-paths }}
     - name: Deploy Application
       shell: pwsh
