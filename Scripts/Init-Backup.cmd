@@ -5,7 +5,7 @@ setlocal
 net session >nul 2>&1
 if %errorLevel% NEQ 0 (
     echo Requesting administrative privileges...
-    powershell.exe -Command "Start-Process cmd -Argument '%~0 %*' -Verb RunAs"
+    powershell.exe -Command "Start-Process cmd -ArgumentList '/c', '%~f0', '%*' -Verb RunAs"
     exit /b
 )
 
@@ -19,6 +19,7 @@ set scriptPath=%~1
 set websiteName=%~2
 set skipPaths=%~3
 
+:: Run the PowerShell script with the provided parameters
 powershell.exe -ExecutionPolicy Bypass -File %scriptPath% -websiteName %websiteName% -skipPaths %skipPaths%
 
 endlocal
