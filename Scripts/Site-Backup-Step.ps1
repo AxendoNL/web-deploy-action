@@ -10,17 +10,19 @@ $skipPaths = $args[5] -split ','  # Get the skipPaths from args and split by com
 
 $computerNameArgument = $computerName + '/MsDeploy.axd?site=' + $websiteName
 
-# Replace placeholders in Init-Backup.cmd
+# Replace placeholders in Init-Backup.cmd while preserving whitespace
 $cmdFilePath = Join-Path $localScriptPath "Init-Backup.cmd"
 
-(Get-Content $cmdFilePath) -replace '{{SCRIPT_PATH_PLACEHOLDER}}', 'C:\DeploymentScripts\Site-Backup.ps1' |
-Set-Content $cmdFilePath
+# Read the entire file content as a single string
+$fileContent = Get-Content $cmdFilePath -Raw
 
-(Get-Content $cmdFilePath) -replace '{{WEBSITE_NAME_PLACEHOLDER}}', $websiteName |
-Set-Content $cmdFilePath
+# Perform replacements
+$fileContent = $fileContent -replace '{{SCRIPT_PATH_PLACEHOLDER}}', 'C:\DeploymentScripts\Site-Backup.ps1'
+$fileContent = $fileContent -replace '{{WEBSITE_NAME_PLACEHOLDER}}', $websiteName
+$fileContent = $fileContent -replace '{{SKIP_PATHS_PLACEHOLDER}}', $skipPaths -join ','
 
-(Get-Content $cmdFilePath) -replace '{{SKIP_PATHS_PLACEHOLDER}}', $skipPaths -join ',' |
-Set-Content $cmdFilePath
+# Write the modified content back to the file
+Set-Content $cmdFilePath -Value $fileContent
 
 
 # Copy the PowerShell script to the remote machine    
