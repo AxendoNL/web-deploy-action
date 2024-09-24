@@ -19,7 +19,16 @@ $fileContent = Get-Content $cmdFilePath -Raw
 # Perform replacements
 $fileContent = $fileContent -replace '{{SCRIPT_PATH_PLACEHOLDER}}', 'C:\DeploymentScripts\Site-Backup.ps1'
 $fileContent = $fileContent -replace '{{WEBSITE_NAME_PLACEHOLDER}}', $websiteName
-$fileContent = $fileContent -replace '{{SKIP_PATHS_PLACEHOLDER}}', $skipPaths -join ','
+
+# Format the skipPaths as a string suitable for PowerShell array syntax
+$formattedSkipPaths = @()
+foreach ($path in $skipPaths) {
+    $formattedSkipPaths += "`"$path`""  # Escape quotes for PowerShell
+}
+$skipPathsString = @("(", ($formattedSkipPaths -join ','), ")") -join ' '
+
+# Replace the skip paths placeholder with the formatted string
+$fileContent = $fileContent -replace '{{SKIP_PATHS_PLACEHOLDER}}', $skipPathsString
 
 # Write the modified content back to the file
 Set-Content $cmdFilePath -Value $fileContent
