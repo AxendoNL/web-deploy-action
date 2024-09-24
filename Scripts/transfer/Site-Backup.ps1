@@ -122,6 +122,27 @@ function Backup-SQLDatabases {
     }
 }
 
+# Function to clean up old backups, keeping only the most recent 3
+function Clean-OldBackups {
+    param (
+        [string]$backupFolder
+    )
+
+    # Get all backup zip files in the backup folder, sorted by creation time (newest first)
+    $backupFiles = Get-ChildItem -Path $backupFolder -Filter "*.zip" | Sort-Object LastWriteTime -Descending
+
+    # If there are more than 3 backups, remove the older ones
+    if ($backupFiles.Count -gt 3) {
+        $filesToRemove = $backupFiles | Select-Object -Skip 3
+        foreach ($file in $filesToRemove) {
+            Write-Output "Removing old backup: $($file.FullName)"
+            Remove-Item -Path $file.FullName -Force
+        }
+    } else {
+        Write-Output "No old backups to remove. Total backups: $($backupFiles.Count)"
+    }
+}
+
 # Backup databases to a temp folder
 $appsettingsPath = Join-Path $websitePath "appsettings.json"
 Backup-SQLDatabases -appsettingsPath $appsettingsPath -backupFolder $backupFolder
@@ -163,3 +184,6 @@ if (Test-Path $tempDbBackupFolder) {
 }
 
 Write-Output "Website files and databases backed up successfully to '$backupFilePath'"
+
+# Call the cleanup function after the backup process
+Clean-OldBackups -backupFolder $backupFolder
