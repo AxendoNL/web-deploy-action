@@ -10,6 +10,19 @@ $skipPaths = $args[5] -split ','  # Get the skipPaths from args and split by com
 
 $computerNameArgument = $computerName + '/MsDeploy.axd?site=' + $websiteName
 
+# Replace placeholders in Init-Backup.cmd
+$cmdFilePath = Join-Path $localScriptPath "Init-Backup.cmd"
+
+(Get-Content $cmdFilePath) -replace '{{SCRIPT_PATH_PLACEHOLDER}}', 'C:\DeploymentScripts\Site-Backup.ps1' |
+Set-Content $cmdFilePath
+
+(Get-Content $cmdFilePath) -replace '{{WEBSITE_NAME_PLACEHOLDER}}', $websiteName |
+Set-Content $cmdFilePath
+
+(Get-Content $cmdFilePath) -replace '{{SKIP_PATHS_PLACEHOLDER}}', $skipPaths -join ',' |
+Set-Content $cmdFilePath
+
+
 # Copy the PowerShell script to the remote machine    
 $msdeployArgumentsCopy = 
     "-verb:sync",
@@ -26,9 +39,6 @@ $msdeployArgumentsCopy =
 # Call msdeploy to copy the script
 & $msdeploy @msdeployArgumentsCopy
 
-
-# Prepare the skipPaths argument (escape commas if needed)
-$escapedSkipPaths = $skipPaths -join "`,"  # Escape commas
 
 # Construct the command to be run on the remote machine
 #$commandToRun = "${remoteScriptPath}\Init-Backup.cmd ${remoteScriptPath}\Site-Backup.ps1 $websiteName $escapedSkipPaths"

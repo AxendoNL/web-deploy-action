@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 :: Check if the script is running with administrative privileges
 net session >nul 2>&1
@@ -8,15 +9,13 @@ if %errorLevel% NEQ 0 (
     exit /b
 )
 
-:: Check if the right number of arguments are passed
-if "%~1"=="" (
-    echo Usage: %0 scriptPath websiteName skipPaths
-    exit /b 1
-)
+:: Use placeholders for variables
+set scriptPath={{SCRIPT_PATH_PLACEHOLDER}}
+set websiteName={{WEBSITE_NAME_PLACEHOLDER}}
+set skipPaths={{SKIP_PATHS_PLACEHOLDER}}
 
-set scriptPath=%~1
-set websiteName=%~2
-set skipPaths=%~3
+:: Replace these placeholders dynamically in your GitHub Actions workflow
 
-:: Run the PowerShell script with the provided parameters
 powershell.exe -ExecutionPolicy Bypass -File %scriptPath% -websiteName %websiteName% -skipPaths %skipPaths%
+
+endlocal
