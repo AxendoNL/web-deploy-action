@@ -128,8 +128,11 @@ function Clean-OldBackups {
         [string]$backupFolder
     )
 
-    # Get all backup zip files in the backup folder, sorted by creation time (newest first)
-    $backupFiles = Get-ChildItem -Path $backupFolder -Filter "*.zip" | Sort-Object LastWriteTime -Descending
+    # Define a filter for the backup files based on the website name
+    $backupFilePattern = "$websiteName-*.zip"
+
+    # Get all backup zip files in the backup folder that match the pattern, sorted by creation time (newest first)
+    $backupFiles = Get-ChildItem -Path $backupFolder -Filter $backupFilePattern | Sort-Object LastWriteTime -Descending
 
     # If there are more than 3 backups, remove the older ones
     if ($backupFiles.Count -gt 3) {
