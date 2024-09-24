@@ -111,7 +111,10 @@ function Backup-SQLDatabases {
     }
 
     foreach ($connStr in $connectionStrings) {
-        if ($connStr.Value -match 'database=([^;]+)') {
+        # Replace double backslashes with single backslashes in the connection string
+        $connectionString = $connStr.Value -replace '\\', '\'
+
+        if ($connectionString.Value -match 'database=([^;]+)') {
             $databaseName = $matches[1]
             $backupFile = Join-Path $tempDbBackupFolder "$databaseName.bak"
             Write-Output "Backing up database: $databaseName"
