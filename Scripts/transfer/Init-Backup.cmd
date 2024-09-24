@@ -16,6 +16,6 @@ set skipPaths={{SKIP_PATHS_PLACEHOLDER}}
 
 :: Replace these placeholders dynamically in your GitHub Actions workflow
 
-powershell.exe -ExecutionPolicy Bypass -File %scriptPath% -websiteName %websiteName% -skipPaths %skipPaths%
+powershell.exe -ExecutionPolicy Bypass -Command %scriptPath% -websiteName %websiteName% -skipPaths %skipPaths%
 
 endlocal
