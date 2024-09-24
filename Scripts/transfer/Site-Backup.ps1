@@ -111,14 +111,19 @@ function Backup-SQLDatabases {
     }
 
     foreach ($connStr in $connectionStrings) {
-        # Replace double backslashes with single backslashes in the connection string
-        $connectionString = $connStr.Value -replace '\\', '\'
-
-        if ($connectionString.Value -match 'database=([^;]+)') {
+        # Extract the database name from the connection string
+        if ($connStr.Value -match 'database=([^;]+)') {
             $databaseName = $matches[1]
+
+            # Extract the server/instance name from the connection string
+            $serverName = $connStr.Value -replace '\\\\', '\' -replace 'Data Source=([^;]+);.*', '$1' -replace 'Server=([^;]+);.*', '$1'
+
+            # Prepare the backup file path
             $backupFile = Join-Path $tempDbBackupFolder "$databaseName.bak"
-            Write-Output "Backing up database: $databaseName"
-            sqlcmd -Q "BACKUP DATABASE [$databaseName] TO DISK = N'$backupFile' WITH NOFORMAT, NOINIT, NAME = N'$databaseName-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+            Write-Output "Backing up database: $databaseName from server: $serverName"
+
+            # Use sqlcmd to back up the database, specifying the server name
+            sqlcmd -S $serverName -Q "BACKUP DATABASE [$databaseName] TO DISK = N'$backupFile' WITH NOFORMAT, NOINIT, NAME = N'$databaseName-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
         } else {
             Write-Output "Connection string '$($connStr.Name)' does not contain a valid database name, skipping."
         }
