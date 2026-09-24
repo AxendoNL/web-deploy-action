@@ -68,20 +68,30 @@ function Should-SkipPath {
 
 # Copy files to temporary backup folder, excluding specified paths
 Write-Output "Copying website files to temporary folder, skipping: $skipPaths"
-Get-ChildItem -Path $websitePath -Recurse -Force | ForEach-Object {
-    $destination = $_.FullName.Replace($websitePath, $tempBackupFolder)
-
-    # Check if the current item should be excluded
-    if (-not (Should-SkipPath -itemPath $_.FullName -excludePaths $fullExcludePaths)) {
-        if ($_.PSIsContainer) {
-            if (-not (Test-Path $destination)) {
-                New-Item -ItemType Directory -Path $destination | Out-Null
-            }
-        } else {
-            Copy-Item -Path $_.FullName -Destination $destination -Force
-        }
+# Split the exclusions into directories and files so robocopy can prune them while
+# walking the tree. Get-ChildItem -Recurse enumerated excluded folders first and only
+# then discarded them, which made large media folders dominate the runtime.
+$excludeDirs = @()
+$excludeFiles = @()
+foreach ($excludePath in $fullExcludePaths) {
+    if (Test-Path -LiteralPath $excludePath -PathType Container) {
+        $excludeDirs += $excludePath
+    } else {
+        $excludeFiles += $excludePath
     }
 }
+
+$robocopyArgs = @($websitePath, $tempBackupFolder, '/E', '/COPY:DAT',
+                  '/R:1', '/W:1', '/MT:16', '/NFL', '/NDL', '/NJH', '/NJS', '/NP')
+if ($excludeDirs.Count -gt 0)  { $robocopyArgs += '/XD'; $robocopyArgs += $excludeDirs }
+if ($excludeFiles.Count -gt 0) { $robocopyArgs += '/XF'; $robocopyArgs += $excludeFiles }
+
+robocopy @robocopyArgs
+# Robocopy uses a bit field: 0-7 is success, 8 and up is a real failure.
+if ($LASTEXITCODE -ge 8) {
+    throw "robocopy failed with exit code $LASTEXITCODE while copying '$websitePath'"
+}
+$global:LASTEXITCODE = 0
 
 # Backup SQL Server databases from connection strings in appsettings.json
 function Backup-SQLDatabases {
@@ -116,7 +126,14 @@ function Backup-SQLDatabases {
             $databaseName = $matches[1]
 
             # Extract the server/instance name from the connection string
-            $serverName = $connStr.Value -replace 'Data Source=([^;]+);.*', '$1' -replace 'Server=([^;]+);.*', '$1'
+            # Anchored on a key boundary. The previous unanchored -replace kept everything
+            # before the match, turning the connection string into a server name like
+            # "Persist Security Info=True;.\SQLExpress2017" that sqlcmd cannot resolve.
+            if ($connStr.Value -notmatch '(?i)(?:^|;)\s*(?:Data Source|Server)\s*=\s*([^;]+)') {
+                Write-Output "Connection string '$($connStr.Name)' has no server/data source, skipping."
+                continue
+            }
+            $serverName = $matches[1].Trim()
 
             # Prepare the backup file path
             $backupFile = Join-Path $tempDbBackupFolder "$databaseName.bak"
