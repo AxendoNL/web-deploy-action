@@ -179,30 +179,24 @@ Backup-SQLDatabases -appsettingsPath $appsettingsPath -backupFolder $backupFolde
 $backupFileName = "$($websiteName)-$timestamp.zip"
 $backupFilePath = Join-Path $backupFolder $backupFileName
 
-# Prepare for compression
-$pathsToCompress = @($tempBackupFolder)
-
-# Check if the database backup folder exists and contains files
+# Fold the database backups into the temp folder so the whole backup is one tree.
 $tempDbBackupFolder = Join-Path -Path $backupFolder -ChildPath "tempDbBackups"
-$dbBackupExists = Test-Path $tempDbBackupFolder
-$dbBackupHasFiles = $false
-
-if ($dbBackupExists) {
-    $dbBackupHasFiles = (Get-ChildItem -Path $tempDbBackupFolder -File | Where-Object { $_.Length -gt 0 }).Count -gt 0
+if ((Test-Path $tempDbBackupFolder) -and
+    @(Get-ChildItem -Path $tempDbBackupFolder -File | Where-Object { $_.Length -gt 0 }).Count -gt 0) {
+    $dbTargetFolder = Join-Path $tempBackupFolder "_databases"
+    New-Item -ItemType Directory -Path $dbTargetFolder -Force | Out-Null
+    Move-Item -Path (Join-Path $tempDbBackupFolder '*') -Destination $dbTargetFolder -Force
 }
 
-# Add the database backup folder if it exists and contains files
-if ($dbBackupExists -and $dbBackupHasFiles) {
-    $pathsToCompress += $tempDbBackupFolder
-}
-
-# Compress the temporary backup folder into the backup zip if there's anything to compress
-if ($pathsToCompress.Count -gt 0) {
-    Write-Output "Compressing to '$backupFilePath'"
-    Compress-Archive -Path $pathsToCompress -CompressionLevel Fastest -DestinationPath $backupFilePath
-} else {
-    Write-Output "No files to compress. Skipping compression."
-}
+# ZipFile.CreateFromDirectory instead of Compress-Archive: the latter could not finish a
+# multi-GB backup within the step timeout once the database backup started succeeding.
+Write-Output "Compressing to '$backupFilePath'"
+Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    $tempBackupFolder,
+    $backupFilePath,
+    [System.IO.Compression.CompressionLevel]::Fastest,
+    $false)
 
 
 # Cleanup temporary folders after compression
